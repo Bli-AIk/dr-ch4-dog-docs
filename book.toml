@@ -1,0 +1,7 @@
+[book]
+title = "从零做一个 Deltarune 同人游戏"
+authors = ["Bli_Aik"]
+language = "zh"
+
+[output.html]
+git-repository-url = "https://github.com/Bli-AIk/dr-ch4-dog-docs"
