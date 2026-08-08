@@ -5,3 +5,4 @@ language = "zh"
 
 [output.html]
 git-repository-url = "https://github.com/Bli-AIk/dr-ch4-dog-docs"
+additional-css = ["theme/custom.css"]

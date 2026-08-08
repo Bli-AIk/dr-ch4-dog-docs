@@ -1,0 +1,353 @@
+/* Kristal docs theme: readable Chinese text, calmer navigation, and wider code. */
+
+:root {
+    --sidebar-target-width: 320px;
+    --sidebar-width: min(var(--sidebar-target-width), 86vw);
+    --page-padding: 24px;
+    --content-max-width: 980px;
+    --menu-bar-height: 60px;
+    --doc-accent: #2f78c4;
+    --doc-accent-soft: rgba(47, 120, 196, 0.12);
+    --doc-border: #d9e0e8;
+    --doc-muted: #5c6878;
+    --doc-code-bg: #f5f7fa;
+    --doc-shadow: 0 12px 32px rgba(31, 45, 61, 0.08);
+}
+
+html {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans CJK SC", "Noto Sans SC", "Microsoft YaHei", sans-serif;
+    letter-spacing: 0;
+}
+
+body {
+    font-size: 1.6rem;
+    line-height: 1.72;
+}
+
+/* Keep the dark themes distinct from mdBook's low-contrast defaults. */
+html.navy,
+html.coal,
+html.ayu {
+    --bg: #11151c;
+    --fg: #e6e9ef;
+    --sidebar-bg: #191e27;
+    --sidebar-fg: #b9c2d0;
+    --sidebar-non-existant: #697486;
+    --sidebar-active: #ffd166;
+    --sidebar-spacer: #303949;
+    --scrollbar: #586579;
+    --icons: #8f9bad;
+    --icons-hover: #f0f3f8;
+    --links: #73b7f3;
+    --inline-code-color: #ffd166;
+    --theme-popup-bg: #1d2430;
+    --theme-popup-border: #3d485a;
+    --theme-hover: #273141;
+    --quote-bg: #1a222e;
+    --quote-border: #3c4a5e;
+    --warning-border: #e69a3a;
+    --table-border-color: #344052;
+    --table-header-bg: #273244;
+    --table-alternate-bg: #171d26;
+    --searchbar-border-color: #5b6a7f;
+    --searchbar-bg: #202936;
+    --searchbar-fg: #f1f4f8;
+    --searchbar-shadow-color: #73b7f3;
+    --searchresults-header-fg: #9aa6b7;
+    --searchresults-border-color: #465367;
+    --searchresults-li-bg: #202936;
+    --search-mark-bg: #705b2a;
+    --doc-accent: #73b7f3;
+    --doc-accent-soft: rgba(115, 183, 243, 0.13);
+    --doc-border: #303b4b;
+    --doc-muted: #a7b1c0;
+    --doc-code-bg: #171d26;
+    --doc-shadow: 0 14px 34px rgba(0, 0, 0, 0.2);
+}
+
+html.light,
+html:not(.js) {
+    --doc-accent: #236aa9;
+    --doc-accent-soft: rgba(35, 106, 169, 0.1);
+}
+
+#menu-bar {
+    background-color: var(--bg);
+    border-block-end: 1px solid var(--doc-border);
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.02);
+}
+
+.menu-title {
+    font-size: 1.9rem;
+    font-weight: 600;
+    color: var(--fg);
+}
+
+#menu-bar i,
+#menu-bar .icon-button {
+    line-height: var(--menu-bar-height);
+}
+
+.sidebar {
+    border-inline-end: 1px solid var(--doc-border);
+    font-size: 1.45rem;
+}
+
+.sidebar .sidebar-scrollbox {
+    padding: 22px 18px 32px;
+}
+
+.chapter {
+    line-height: 1.5;
+}
+
+.chapter li.chapter-item {
+    margin-block-start: 0.3em;
+}
+
+.chapter li.part-title {
+    margin: 1.6em 0 0.5em;
+    padding: 0 12px;
+    color: var(--doc-accent);
+    font-size: 1.25rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.chapter li.chapter-item a {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 8px 12px;
+    border-radius: 6px;
+    color: var(--sidebar-fg);
+    line-height: 1.45;
+    transition: background-color 120ms ease, color 120ms ease;
+}
+
+.chapter li.chapter-item a:hover {
+    color: var(--fg);
+    background-color: var(--doc-accent-soft);
+    text-decoration: none;
+}
+
+.chapter li.chapter-item a.active {
+    color: var(--sidebar-active);
+    background-color: var(--doc-accent-soft);
+    font-weight: 600;
+}
+
+.chapter li.chapter-item a strong {
+    display: inline-block;
+    min-width: 2.4rem;
+    color: var(--doc-muted);
+    font-size: 1.2rem;
+    font-weight: 500;
+}
+
+.content {
+    padding: 0 18px 72px;
+}
+
+.content main {
+    max-width: var(--content-max-width);
+}
+
+.content p,
+.content ol,
+.content ul {
+    line-height: 1.78;
+}
+
+.content h1,
+.content h2,
+.content h3,
+.content h4,
+.content h5,
+.content h6 {
+    color: var(--fg);
+    letter-spacing: 0;
+    line-height: 1.35;
+}
+
+.content h1 {
+    margin: 1.5em 0 0.85em;
+    font-size: 3.2rem;
+    font-weight: 750;
+}
+
+.content h2 {
+    margin: 2.6em 0 0.9em;
+    padding-block-end: 0.35em;
+    border-block-end: 1px solid var(--doc-border);
+    font-size: 2.3rem;
+    font-weight: 700;
+}
+
+.content h3 {
+    margin: 2em 0 0.7em;
+    font-size: 1.85rem;
+    font-weight: 700;
+}
+
+.content h4 {
+    font-size: 1.65rem;
+}
+
+.content a:link,
+.content a:visited {
+    color: var(--links);
+}
+
+.content blockquote {
+    margin: 1.6em 0;
+    padding: 0.75em 1.1em;
+    border: 1px solid var(--quote-border);
+    border-inline-start: 4px solid var(--doc-accent);
+    border-radius: 0 6px 6px 0;
+    background-color: var(--quote-bg);
+}
+
+.content code {
+    padding: 0.14em 0.35em;
+    border: 1px solid var(--doc-border);
+    border-radius: 4px;
+    background-color: var(--doc-code-bg);
+}
+
+.content pre {
+    margin: 1.5em 0;
+    border: 1px solid var(--doc-border);
+    border-radius: 6px;
+    box-shadow: var(--doc-shadow);
+    background-color: var(--doc-code-bg);
+    overflow: auto;
+}
+
+.content pre > code {
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    line-height: 1.6;
+}
+
+.content table {
+    display: block;
+    max-width: 100%;
+    overflow-x: auto;
+}
+
+.content table td,
+.content table th {
+    padding: 0.65em 0.9em;
+}
+
+.content img,
+.content video {
+    border-radius: 6px;
+}
+
+/* The overview is a readable course index without adding every lesson to the outline. */
+main:has(> h1#kristal-中文教程总览) > p:first-of-type {
+    margin: 0 0 2.6em;
+    color: var(--doc-muted);
+    font-size: 1.7rem;
+}
+
+main:has(> h1#kristal-中文教程总览) > h2 {
+    margin-top: 2.5em;
+    color: var(--doc-accent);
+}
+
+main:has(> h1#kristal-中文教程总览) > ul {
+    list-style: none;
+    margin: 1em 0 2.25em;
+    padding: 0;
+}
+
+main:has(> h1#kristal-中文教程总览) > ul > li {
+    position: relative;
+    margin: 0;
+    padding: 0.85em 0 0.9em 1.35em;
+    border-inline-start: 2px solid var(--doc-border);
+}
+
+main:has(> h1#kristal-中文教程总览) > ul > li::before {
+    position: absolute;
+    inset-inline-start: -0.4em;
+    top: 0.95em;
+    content: "•";
+    color: var(--doc-accent);
+    font-size: 1.35em;
+    line-height: 1;
+}
+
+main:has(> h1#kristal-中文教程总览) > ul > li > p {
+    margin: 0;
+}
+
+main:has(> h1#kristal-中文教程总览) > ul > li > p:first-child {
+    font-size: 1.75rem;
+    font-weight: 700;
+}
+
+main:has(> h1#kristal-中文教程总览) > ul > li > p:first-child a {
+    color: var(--fg);
+}
+
+main:has(> h1#kristal-中文教程总览) > ul > li > p:first-child a:hover {
+    color: var(--links);
+}
+
+main:has(> h1#kristal-中文教程总览) > ul > li > p + p {
+    margin-top: 0.25em;
+    color: var(--doc-muted);
+}
+
+@media only screen and (max-width: 1080px) {
+    :root {
+        --content-max-width: 820px;
+    }
+}
+
+@media only screen and (max-width: 620px) {
+    :root {
+        --page-padding: 12px;
+        --menu-bar-height: 52px;
+    }
+
+    .menu-title {
+        font-size: 1.6rem;
+    }
+
+    .content {
+        padding-inline: 10px;
+        padding-block-end: 48px;
+    }
+
+    .content h1 {
+        font-size: 2.6rem;
+    }
+
+    .content h2 {
+        font-size: 2rem;
+    }
+
+    .content h3 {
+        font-size: 1.7rem;
+    }
+
+    .content pre {
+        margin-inline: -2px;
+        border-radius: 4px;
+    }
+}
+
+@media print {
+    .content main {
+        max-width: none;
+    }
+
+    .content pre {
+        box-shadow: none;
+    }
+}
