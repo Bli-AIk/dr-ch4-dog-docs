@@ -18,6 +18,10 @@
 
 just build-mod → dist/dr-ch4-dog-mod.zip：rsync 排除清单（.git/.github/编辑器配置/docs/Makefile/justfile/build 脚本/tiled 工程等）→ 删三个开发库 → patch dev=false（+object-editor 禁用）；zip 自动挂载不用解压（loadthread.lua 片段）。just build → 独立包：固定引擎 v0.10.0 + vendcust.lua 三行（TARGET_MOD/AUTO_MOD_START/RELEASE_MODE，逐字）+ conf.lua（identity 存档隔离/窗口标题/图标）+ love.exe 拼 .love → DR-CH4-DOG-release.exe。产物对照表（mod.zip / win64 / .love），什么时候给哪种。
 
+## 自定义图标
+
+三步从易到难：window_icon.png（mod 根目录，运行时窗口图标+标题，引擎自动，独立包同样生效）→ icon.png（主菜单列表图标）→ exe 文件图标（icon.ico + icon.res 重编译，进阶，参考 wiki releasing-mods）；PNG 方形即可，素材按 EX02 规矩。
+
 ## 测试发布包
 
 玩家视角冒烟（干净 Kristal 放 zip → 启动 → 主菜单 → 战斗 → 饶恕胜利 → 输一局看失败流程 → 退出查存档污染）；独立包额外检查（窗口标题/图标、debug 菜单没了、存档独立）。"交付前最后一分钟检查"（EX06 冒烟思路）。
