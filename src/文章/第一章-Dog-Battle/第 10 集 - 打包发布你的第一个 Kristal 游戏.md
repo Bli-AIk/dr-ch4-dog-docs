@@ -2,12 +2,19 @@
 
 欢迎回来！这是《从零做一个 Deltarune 同人游戏》系列的第 10 集，也是**第一章的最后一集**。
 
-第 04 集，项目跑起来、进入第一场战斗；第 05-09 集，敌人、三回合弹幕、ACT 与饶恕——一场 Dog Battle 该有的都有了。但这些东西都还在你自己的电脑上。这一集把"能玩"变成"能交付"：**打包发布**，让别人也能玩到。
+第 04 集，项目跑起来、进入第一场战斗；第 05-09 集，敌人、三回合弹幕、ACT 与饶恕——一场 Dog Battle 该有的都有了。但这些东西都还在你自己的电脑上。这一集，把"能玩"变成"能交付"。
 
-交付两种东西，对应两种玩家：
+先想一个最朴素的问题：**做完的游戏，怎么给别人玩？**
 
-- **mod 包**——给已经装了 Kristal 的人。一个 zip，丢进 `mods/` 就能玩；
-- **独立包**——给什么都不想装的人。一个可以直接双击的 exe。
+如果你把项目文件夹整个发给朋友，他会缺一大堆东西：没有 Kristal 引擎跑不起来，缺了库战斗会崩，还有一堆只有你用得上的配置文件。所以游戏做完，还要走两步：
+
+- **打包**——把项目整理成"发给别人就能用"的一个文件；
+- **发布**——把包放到别人能下载的地方。
+
+这一集从零把这两步走完。先说目标：我们交付两种东西，对应两种玩家——
+
+- **mod 包**：给已经装了 Kristal 的人。一个 zip，丢进 `mods/` 就能玩；
+- **独立包**：给什么都不想装的人。一个可以直接双击的 exe。
 
 第 03 集清单的最后一行"打包发布"，就是这一集。
 
@@ -15,26 +22,24 @@
 
 打包不是"把文件夹压一下"，而是**决定什么进包**。判断标准只有一条：**运行时需要吗？**
 
-EX04 已经把项目分好了三类：源文件（要发布）、构建产物（不进包）、个人配置（不进包）。发布前照例体检一遍，用的都是学过的命令：
-
-- `git status` 干净（EX03）——该提交的提交了，不该在的别在；
-- 构建产物 `dist/`、`.build/` 都在 `.gitignore` 里（EX04）；
-- 素材出处 `THIRD_PARTY.md` 是完整的（EX04）；
-- 开发库躺在 `libraries/` 里——它们怎么被拦在包外，是这一节的重点。
-
-顺带看一眼 `mod.json` 里的 `name`、`subtitle`、`version`——主菜单按钮上显示的就是它们。发布前把它们改成正式的名字和版本号（怎么升版本，EX04 教过 SemVer）。
-
-说具体点，我们项目的三类各是什么：
+EX04 已经把项目分好了三类：源文件（要发布）、构建产物（不进包）、个人配置（不进包）。说具体点，我们项目的三类各是什么：
 
 - **源文件**：`mod.json`（mod 的身份证）、`scripts/`（全部代码）、`lang/`（双语文本）、`assets/`（素材）、`libraries/`（库）——这些进包；
 - **构建产物**：`dist/`、`.build/`——脚本生成的，随时能重新生成，带进包只会白占体积；
 - **个人配置**：`.obsidian/`、编辑器配置——只对你有用，别人不需要。
 
-这条分类线 EX04 已经画好，这里只是照着做减法。体检完，项目本身不用动——**剔除开发内容这件事，构建脚本替我们做好**。这也是 EX04 说"生产打包时自动排除"的含义。
+发布前照例体检一遍，用的都是学过的命令：
+
+- `git status` 干净（EX03）——该提交的提交了，不该在的别在；
+- 构建产物 `dist/`、`.build/` 都在 `.gitignore` 里（EX04）；
+- 素材出处 `THIRD_PARTY.md` 是完整的（EX04）；
+- 顺带看一眼 `mod.json` 里的 `name`、`subtitle`、`version`——主菜单按钮上显示的就是它们。发布前改成正式的名字和版本号（怎么升版本，EX04 教过 SemVer）。
+
+体检完，项目本身不用动——**剔除开发内容这件事，有专门的脚本替我们做**。你可能还不知道：你的项目里其实躺着一整套打包工具。从第 04 集到现在，我们一直用 `just run` 跑游戏——`just` 读的是项目根目录的 `justfile` 命令表，里面除了 `run`，模板还自带了打包命令：**`just build-mod`（打 mod 包）和 `just build`（打独立包）**。脚本本身是模板自带的，不用你写、也不用你读懂——跑就行，这集只要知道每条命令产出什么。
 
 ## 确认运行依赖
 
-发布之前，先想清楚：**这个 mod 跑起来需要什么？** 分三层：
+打包之前，先想清楚：**这个 mod 跑起来需要什么？** 分三层：
 
 1. **引擎**：Kristal v0.10.0（`mod.json` 里的 `engineVer` 字段）。玩 mod 的人得有引擎——或者你给他独立包，引擎就包在里面了；
 2. **运行时库**：`kristal-i18n`（语言系统）、`gaster_blaster`（GB 炮的子弹库）——缺了它们战斗跑不起来；
@@ -58,79 +63,30 @@ EX04 已经把项目分好了三类：源文件（要发布）、构建产物（
 }
 ```
 
-关键在 `"only_dev": true`——**只在开发模式启用**。它怎么生效，看库自己的 `lib.lua`：
+关键在 `"only_dev": true`——**只在开发模式启用**。这是库自己声明的开关：库在运行时检查"现在是开发模式吗？不是就整个不启用"。而"是不是开发模式"由 `mod.json` 的 `dev` 字段决定（`Kristal.isDevMode()` 读的就是它）——所以发布版要把 `dev` 改成 `false`，三个开发库（debug 菜单、终端、物体编辑器）的功能才会全部熄火。
 
-```lua
-local function is_enabled()
-    if config("enabled") == false then
-        return false
-    end
-    if config("only_dev") == false then
-        return true
-    end
-    -- 默认（only_dev = true）：只有开发模式才启用
-    return not Kristal.isDevMode or Kristal.isDevMode()
-end
-```
+这里有个容易混的点：**only_dev 只是"运行时开关"，引擎不会物理删除任何库**。库还在包里，只是不干活；"生产包整目录删掉开发库"是打包脚本干的事——下面就看到。
 
-`Kristal.isDevMode()` 看的是 `mod.json` 的 `dev` 字段。所以：**"开发模式"是 mod 自己声明的，不是引擎猜的**。发布版要把 `dev` 改成 `false`，三个开发库的功能（debug 菜单、终端、物体编辑器）就全部熄火。
+引擎还管两件兼容性的事。第一，`engineVer`：主菜单的 mod 按钮会做版本检查——**0.x 阶段的引擎要求完全同版本**（我们的 `v0.10.0` 只认 `v0.10.0`）。为什么这么严格？因为 0.x 意味着引擎还没承诺稳定，`v0.10.0` 到 `v0.11.0` 之间可能改掉任何东西；等 1.0 之后才放宽。版本对不上 mod 也能加载，但主菜单会红字标出差异。
 
-这里有个容易混的点：**only_dev 只是"运行时开关"，引擎不会物理删除任何库**。库还在包里，只是不干活；"生产包整目录删掉开发库"是构建脚本的行为——下面就看到。
-
-引擎还管两件兼容性的事。第一，`engineVer`：主菜单的 mod 按钮会做版本检查，0.x 阶段的引擎要求**完全同版本**（引擎的 semver 实现）：
-
-```lua
-  -- This works like the "pessimisstic operator" in Rubygems.
-  -- if a and b are versions, a ^ b means "b is backwards-compatible with a"
-  -- 0.x 阶段：完全同版本才算兼容（v0.10.0 只认 v0.10.0）
-  function mt:__pow(other)
-    if self.major == 0 then
-      return self == other
-    end
-    return self.major == other.major and
-           self.minor <= other.minor
-  end
-```
-
-版本对不上 mod 也能加载，但主菜单会红字标出差异。为什么 0.x 这么严格？因为 0.x 意味着引擎还没承诺稳定——`v0.10.0` 到 `v0.11.0` 之间可能改掉任何东西，引擎干脆要求完全同版本；等 1.0 之后，才允许"同大版本内小版本向上兼容"（就是 `__pow` 的另一半分支）。第二，库的依赖：`lib.json` 里写了 `dependencies` 的话，缺失的必填依赖会让整个 mod 加载失败——所以发布包里，`gaster_blaster` 和 `kristal-i18n` 必须原样带上。
+第二，库的依赖：`lib.json` 里写了 `dependencies` 的话，缺失的必填依赖会让整个 mod 加载失败——所以发布包里，`gaster_blaster` 和 `kristal-i18n` 必须原样带上。
 
 ## 准备发布版本
 
-两条命令，两种产物。先看 **mod 包**：
+先打 **mod 包**。命令就是刚才 justfile 里的：
 
 ```makefile
 build-mod:
     @./.github/scripts/build_mod.sh
 ```
 
-跑完得到 `dist/dr-ch4-dog-mod.zip`。脚本做了三件事——先按清单排除开发文件（rsync 的排除规则，这是脚本里的一段）：
+它调用的脚本 `.github/scripts/build_mod.sh` 是模板自带的，跑完在 `dist/` 里得到 `dr-ch4-dog-mod.zip`。脚本干三件事：
 
-```bash
-rsync -a \
-    --exclude='/.git/' \
-    --exclude='/.github/' \
-    --exclude='/.build/' \
-    --exclude='/dist/' \
-    --exclude='/.emacs/' \
-    --exclude='/.helix/' \
-    --exclude='/.vscode/' \
-    --exclude='/.worktrees/' \
-    --exclude='/tests/' \
-    --exclude='/docs/' \
-    --exclude='/Makefile' \
-    --exclude='/justfile' \
-    --exclude='/build_standalone.sh' \
-    --exclude='/build_standalone.py' \
-    --exclude='/release-please-config.json' \
-    --exclude='/.release-please-manifest.json' \
-    --exclude='/.gitmodules' \
-    --exclude='/.gitignore' \
-    --exclude='*.tiled-project' \
-    --exclude='*.tiled-session' \
-    "$ROOT/" "$STAGE_DIR/"
-```
+**第一步，复制项目，扔开发文件**——脚本先把项目复制一份，按清单扔掉 git 历史、编辑器配置、文档、构建脚本这些开发期才有的东西（具体清单不用背，知道它是在做减法就行）。
 
-排除的每一类都有道理：`.git/`、`.github/` 是版本管理的东西；`.emacs/`、`.helix/`、`.vscode/` 是编辑器配置；`docs/` 是文档仓库；`Makefile`、`justfile`、`build_*` 是开发工具；`*.tiled-project` 是地图编辑器的工程文件（第二章才用得上）。然后删掉三个开发库，把 `mod.json` 的 `dev` 改成 `false`（顺带把 object-editor 的 `enabled` 也关了）：
+**第二步，删掉三个开发库**——整目录删 `object-editor`、`terminal-cli`、`kristal-debug-tools`。它们在运行时本来就不干活（only_dev），打包时干脆不带，包还更小。
+
+**第三步，改配置**——把 `mod.json` 的 `dev` 改成 `false`（顺带把 object-editor 的 `enabled` 也关了）：
 
 ```jsonc
     // 发布前：开发模式开着，debug 菜单、终端、物体编辑器都能用
@@ -139,46 +95,30 @@ rsync -a \
     "dev": false,
 ```
 
-打包成 zip 还有个引擎级的便利——**zip 不用解压**。引擎扫描 `mods/` 时见到 `.zip` 会自动挂载（引擎 loadthread.lua）：
+打包成 zip 还有个引擎级的便利——**zip 不用解压**：引擎扫描 `mods/` 时见到 `.zip` 会自动挂载。所以分享时一个 zip 就够了：玩家把它放进 `mods/`，主菜单直接出现你的 mod。
 
-```lua
-        local zip_id = checkExtension(path, "zip")
-        if zip_id then
-            local mounted_path = full_path
-            full_path = combinePath(base_dir, "mods", zip_id)
-            path = zip_id
-            -- 把 zip 挂载进文件系统，玩家不用自己解压
-            love.filesystem.mount(mounted_path, full_path)
-        end
-```
-
-所以分享时一个 zip 就够了：玩家把它放进 `mods/`，主菜单直接出现你的 mod。
-
-再来看 **独立包**：
+再打 **独立包**：
 
 ```makefile
 build:
     @./build_standalone.sh
 ```
 
-它会下载固定版本的 Kristal（v0.10.0），改几个配置，把引擎和你的 mod 焊成一个独立游戏——玩家不需要装 Kristal。改动配置的本质，是引擎 vendcust.lua 里的三行：
+`build_standalone.sh` 也是模板自带的。它做的事多几步，但思路就一条：**拿一份 Kristal 引擎，把你的 mod 焊进去，变成一个独立游戏**——玩家不需要装 Kristal。具体四步：
+
+1. 下载固定版本的 Kristal（v0.10.0）；
+2. 改引擎的三个开关，把"通用引擎"变成"你的游戏"：
 
 ```lua
---- The ID of the "target mod" (found in mod.json).
---- 锁定的目标 mod：玩家只能玩这一个
-TARGET_MOD = nil
-
---- Disables Kristal's built-in Main menu and
---- immediately loads the target mod.
---- 跳过主菜单，启动直接进你的 mod
-AUTO_MOD_START = false
-
---- Controls whether Kristal development-related features are enabled or not.
---- 正式版：开发功能关闭
-RELEASE_MODE = true
+TARGET_MOD = "dr-ch4-dog"  -- 锁定目标 mod：玩家只能玩这一个
+AUTO_MOD_START = true      -- 跳过主菜单，启动直接进你的 mod
+RELEASE_MODE = true        -- 正式版：开发功能关闭
 ```
 
-（上面的 `nil`/`false`/`true` 是引擎默认值，构建脚本把它们改成 `"dr-ch4-dog"` / `true` / `true`。）再改 `conf.lua`：`identity`（存档目录——改了才不会和引擎本体共用存档）、窗口标题和图标。最后把 `love.exe` 和打包好的 `.love` 拼在一起——`DR-CH4-DOG-release.exe` 诞生。产物汇总：
+3. 改 `conf.lua`：`identity`（存档目录——改了才不会和引擎本体共用存档）、窗口标题和图标；
+4. 把 `love.exe` 和打包好的 `.love` 拼在一起——`DR-CH4-DOG-release.exe` 诞生。
+
+产物汇总：
 
 | 产物 | 给谁 | 怎么用 |
 | --- | --- | --- |
@@ -231,19 +171,34 @@ README 里顺手写明版本和更新说明（"v0.1.0：第一个可玩版本"�
 
 ## 发布与回顾
 
-最后一步，把包发出去。EX03 教过 tag 和 CI，EX04 教过 release-please 的 release PR——现在把它们接起来：合并 release PR → 机器人打 `v0.1.0` 标签 → CI 自动构建 → 产物自动上传到 **GitHub Releases 页面**：`.love`、`win64` 包、`mod.zip`，还有一份 `SHA256SUMS`。
+包打好了，最后一步：**放到别人能下载的地方**。这里还有第二件你可能不知道的事：**GitHub 能自动打包**。
 
-`SHA256SUMS` 是校验清单——下载的人跑一条命令，就能确认文件没坏、没被替换：
+先说"自动"从哪来。我们的仓库里有个 `.github/` 文件夹——里面装的是**流水线剧本**（GitHub Actions 的工作流文件，EX03 提过 CI 这回事）。剧本写的是：仓库一旦打上 `v0.1.0` 这样的版本标签 → GitHub 自动跑一遍打包脚本 → 自动把产物传到 **Releases 页面**。整个过程没人操作，纯自动。这就是"GitHub 自动打包"——你唯一要做的，是让那个标签出现。
+
+打标签有两条路，从易到难：
+
+**路线一：手动打标签**（最朴素，先跑通再说）。EX03 教过 `git tag`，现在派上用场：
+
+```bash
+git tag v0.1.0
+git push --tags
+```
+
+标签一推上去，流水线自动开工，一会儿 Releases 页面就有包了。
+
+**路线二：机器人打标签**（EX04 讲的 release-please）。机器人盯着 `feat:`/`fix:` 提交，自动开 release PR、改 `mod.json` 版本号、更新 changelog——合并 PR 后由机器人打标签，触发同一套自动打包。你手动要做的，只剩"合并 PR"这一个动作。
+
+两条路最终都汇到同一个 Releases 页面：一个版本一个条目，标题就是版本号（v0.1.0），下面是 changelog 和附件列表——玩家在页面上挑自己平台的包下载。
+
+附件里除了 `.love`、`win64` 包、`mod.zip`，还有一份 `SHA256SUMS`。它是校验清单——下载的人跑一条命令，就能确认文件没坏、没被替换：
 
 ```bash
 sha256sum -c SHA256SUMS
 ```
 
-GitHub Releases 页面长这样：一个版本一个条目，标题就是版本号（v0.1.0），下面是 changelog 和附件列表——玩家在页面上挑自己平台的包下载，顺手还能跑一遍校验。
+到这里，第 03 集清单的最后一行也打上勾了。回看第一章：规划（第 03 集）→ 战斗闭环（第 04-09 集）→ 交付（这一集）——一个从零做出来、别人能玩到的 Dog Battle。
 
 > 📷 此处插入截图：GitHub Releases 页面——v0.1.0 条目与附件列表
-
-到这里，第 03 集清单的最后一行也打上勾了。回看第一章：规划（第 03 集）→ 战斗闭环（第 04-09 集）→ 交付（这一集）——一个从零做出来、别人能玩到的 Dog Battle。
 
 ## 结尾
 
