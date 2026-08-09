@@ -26,9 +26,13 @@ just build-mod → dist/dr-ch4-dog-mod.zip：rsync 排除清单（.git/.github/�
 
 README 骨架（名称/运行方式/素材与许可）代码块；THIRD_PARTY.md 确认；发布 = 让陌生人能自己上手。
 
+## GitHub 自动打包
+
+从零讲"GitHub 能自动打包"：.github/ 里的流水线剧本——打上版本标签 → 自动跑打包脚本 → 自动传 GitHub Releases 页面；打标签两条路线（手动 git tag + push --tags；release-please 机器人合并 PR 自动打）；产物含 .love / win64 / mod.zip / SHA256SUMS，sha256sum -c SHA256SUMS 校验。
+
 ## 发布与回顾
 
-接 EX03（tag/CI）+ EX04（release-please）→ 合并 release PR → 打标签 → CI 自动构建 → 产物上传 GitHub Releases（.love / win64 / mod.zip / SHA256SUMS）；sha256sum -c SHA256SUMS 校验；第 03 集第一章清单全部打勾回顾。
+第 03 集第一章清单全部打勾回顾（规划 → 战斗闭环 → 交付）；截图占位（Releases 页面）。
 
 ## 结尾
 
