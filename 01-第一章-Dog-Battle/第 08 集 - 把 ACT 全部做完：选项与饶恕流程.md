@@ -8,7 +8,7 @@
 
 ## 拆 ACT
 
-第 05 集教了 registerAct 的基础注册；这集补齐四个选项的完整实现：init 里的注册（摸狗单人/队伍版、讲笑话带 TP 要求）+ onAct 里的分发逻辑，全部给出具体代码（以 dog.lua 现状为准）。
+第 05 集教了 registerAct 的基础注册；这集补齐四个选项的完整实现。先看 init 里的三个注册：act_pet（单人摸狗）、act_pet_party（队伍版摸狗，需要 susie+ralsei）、act_tell_joke（讲笑话，需要 susie+ralsei、100 TP）；再看 onAct 里的分发逻辑——全部给出具体代码（以 dog.lua 现状为准）。
 
 ## 摸狗与 miss
 
@@ -20,11 +20,15 @@ tell_joke：需要苏西和利艾尔斯在场、100 TP；成功后打上 joke_co
 
 ## 队伍版摸狗与饶恕（mercy 流程）
 
-joke 完成后队伍版摸狗 → 触发 pet_party_special 演出（加 100 饶恕值 → shock → 白屏 → sleep + 漂浮道具 → 淡入）→ spare() 直接饶恕，战斗结束。给出 onAct 与 cutscene 的具体代码。
+joke 完成后队伍版摸狗 → 触发 pet_party_special 演出（cutscenes/dog.lua：加 100 饶恕值 → shock → 白屏 → sleep + 漂浮道具 → 淡入）→ spare() 直接饶恕，战斗结束。给出 onAct 分支与 cutscene 的具体代码。
 
 ## 为什么这是唯一的饶恕方式
 
 getAttackDamage 返回 0——狗打不死，也没有别的 mercy 入口（没有 onMercy 覆写）；原动画同理。对照第 03 集时间轴"队伍版摸狗 → 饶恕 → 战斗结束"。
+
+## 检查本集成果
+
+四个 ACT 选项全部可用（单人不满足条件的选项变灰不可选）；讲笑话 → 队伍版摸狗 → 饶恕的链路完整可跑，战斗能正常结束。
 
 ## 结尾
 
