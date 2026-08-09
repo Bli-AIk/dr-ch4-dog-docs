@@ -4,32 +4,32 @@
 
 ## 开场
 
-展示可以独立运行的 Dog Battle 成品，回顾从第一场战斗到完整流程的制作过程。
+第一章收官集：把"能玩"变成"能交付"。两种交付形态——mod 包（zip 丢进 Kristal mods/ 即玩，引擎自动挂载）与独立包（exe，玩家不用装 Kristal）。对照第 03 集清单最后一行"打包发布"。
 
 ## 发布前整理项目
 
-检查项目结构、脚本、素材和语言资源，清理与运行作品无关的内容。
+打包 = 决定什么进包，标准只有一条"运行时需要吗"。体检清单（git status 干净、dist/.build 在 .gitignore、THIRD_PARTY.md 完整、开发库会被构建脚本剔除）——对照 EX04 分类不重复展开；项目本身不用动，剔除由构建脚本做。
 
 ## 确认运行依赖
 
-核对作品在目标环境中运行所需的文件和配置，减少交付后才发现缺失内容的情况。
+依赖三层：引擎（engineVer v0.10.0，0.x 要求完全同版本——semver __pow 代码块）；运行时库（kristal-i18n、gaster_blaster）；开发库（only_dev 机制：lib.json + lib.lua is_enabled 逐字；Kristal.isDevMode 看 mod.json 的 dev 字段）。澄清：only_dev 是运行时开关，引擎不物理删库；删库是构建脚本行为。lib.json dependencies 缺失 → 整个 mod 加载失败。
 
 ## 准备发布版本
 
-按照目标平台整理构建内容，生成适合测试和分享的发布版本。
+just build-mod → dist/dr-ch4-dog-mod.zip：rsync 排除清单（.git/.github/编辑器配置/docs/Makefile/justfile/build 脚本/tiled 工程等）→ 删三个开发库 → patch dev=false（+object-editor 禁用）；zip 自动挂载不用解压（loadthread.lua 片段）。just build → 独立包：固定引擎 v0.10.0 + vendcust.lua 三行（TARGET_MOD/AUTO_MOD_START/RELEASE_MODE，逐字）+ conf.lua（identity 存档隔离/窗口标题/图标）+ love.exe 拼 .love → DR-CH4-DOG-release.exe。产物对照表（mod.zip / win64 / .love），什么时候给哪种。
 
 ## 测试发布包
 
-在独立环境中运行发布包，确认启动、战斗、胜利、失败和退出流程都保持正常。
+玩家视角冒烟（干净 Kristal 放 zip → 启动 → 主菜单 → 战斗 → 饶恕胜利 → 输一局看失败流程 → 退出查存档污染）；独立包额外检查（窗口标题/图标、debug 菜单没了、存档独立）。"交付前最后一分钟检查"（EX06 冒烟思路）。
 
 ## 整理作品说明
 
-准备作品名称、版本信息、运行方式和必要的说明内容，让他人能够顺利开始游戏。
+README 骨架（名称/运行方式/素材与许可）代码块；THIRD_PARTY.md 确认；发布 = 让陌生人能自己上手。
 
 ## 发布与回顾
 
-完成第一个版本的发布，并回顾本章从项目创建到交付作品的完整战斗开发流程。
+接 EX03（tag/CI）+ EX04（release-please）→ 合并 release PR → 打标签 → CI 自动构建 → 产物上传 GitHub Releases（.love / win64 / mod.zip / SHA256SUMS）；sha256sum -c SHA256SUMS 校验；第 03 集第一章清单全部打勾回顾。
 
 ## 结尾
 
-预告下一章：使用 Tiled 制作 Overworld 地图。
+第一章收官（启动画面 → exe）；预告第二章 Tiled 地图；作业（建议语气）：把 mod.zip 装进干净 Kristal 跑全流程模拟玩家 / 改 name、subtitle 重新 build 看窗口标题变化。
