@@ -131,18 +131,36 @@ end
 
 ## 拆 ACT
 
-第 05 集教过 registerAct 的基础；这集把选项补全。dog.lua 的 init 里，注册了三个 ACT（"查看"是引擎默认的，不用注册）：
+第 05 集教过 registerAct 的基础；这集把选项补全。dog.lua 的 init 里，注册了三个 ACT（"查看"是引擎默认的，不用注册）。菜单上显示的名字、描述，都来自 lang 的键（`applyLocalization` 里 `Game:loc` 读进来）：
+
+```json
+"act_check": "查看",
+"act_dog_pet": "抚摸",
+"act_dog_pet_description": "前提是\n能碰到",
+"act_dog_tell_joke": "讲笑话",
+"act_dog_tell_joke_description": "或许有\n用？",
+```
+
+注意：菜单里其实叫"抚摸"——"摸狗"是我们平时喊它的外号（对应原动画的 Pet 动作）。
 
 ```lua
--- 单人版摸狗：谁都能用
+-- 单人版抚摸：谁都能用。名字/描述就是上面 JSON 里读进来的变量
 self:registerAct(self.act_pet, self.act_pet_description)
--- 队伍版摸狗：需要苏西和利艾尔斯同时在场
+-- 队伍版抚摸：和单人版同一个名字（act_pet_party 复用 act_pet 的键），
+-- 但第三个参数要求苏西和利艾尔斯同时在场——凑不齐就变灰不可选
 self:registerAct(self.act_pet_party, self.act_pet_description, {"susie", "ralsei"})
--- 讲笑话：需要苏西和利艾尔斯，还要 100 TP
+-- 讲笑话：同样要队伍凑齐，第四个参数是 TP 要求（100）
 self:registerAct(self.act_tell_joke, self.act_tell_joke_description, {"susie", "ralsei"}, 100)
 ```
 
-第三参数是"使用这个 ACT 需要的队员"，第四个是 TP 要求。选项怎么分发？——选中 ACT 后引擎调用 `onAct`，按名字分流，全文如下：
+第三参数是"使用这个 ACT 需要的队员"，第四个是 TP 要求。选项怎么分发？——选中 ACT 后引擎调用 `onAct`，按名字分流，全文如下。onAct 里用到的对话文本键，也先列出来：
+
+```json
+"act_dog_pet_text": "* 你伸手想碰[name:dog]。[wait:5]\n* 它躲开了。",
+"act_dog_pet_party_text": "* 大家一起去摸狗狗...[wait:5][func:dog_pet_miss][wait:1s]\n* 但是被它轻易地躲开了！",
+"act_dog_standard": "* [var:name]伸手想碰[name:dog]。[wait:5]\n* 它躲开了。",
+"battle_dog_dialogue": "汪",
+```
 
 ```lua
 -- ACT 选中后的分发入口：按名字分流
@@ -204,47 +222,63 @@ end
 
 ## 摸狗与 miss
 
-单人摸狗最简单——直接返回一句话（`act_dog_pet_text` 原文："* 你伸手想碰[name:dog]。[wait:5]\n* 它躲开了。"）。第 03 集时间轴里的"摸狗失败"，就是它。
+单人摸狗最简单——直接返回一句话（就是上面 JSON 里的 `act_dog_pet_text`）。第 03 集时间轴里的"摸狗失败"，就是它。
 
-队伍版摸狗（没讲笑话时）走演出，气泡里藏了个新富文本标记 `[func:dog_pet_miss]`——"在这里调用函数"：
+队伍版摸狗（没讲笑话时）走演出，气泡里藏了个新富文本标记 `[func:dog_pet_miss]`——"在这里调用函数"。看 `act_dog_pet_party_text` 那行 JSON：标记嵌在文案中间，文本播到那里时，会调用 `functions` 表里对应的函数：
 
 ```lua
 cutscene:text("{act_dog_pet_party_text}", {
     functions = {
         dog_pet_miss = function()
-            self:statusMessage("msg", "miss_gold")  -- 金色 MISS
+            self:statusMessage("msg", "miss_gold")  -- 弹金色 MISS 状态气泡
         end
     }
 })
 ```
 
-`act_dog_pet_party_text` 原文："* 大家一起去摸狗狗...[wait:5][func:dog_pet_miss][wait:1s]\n* 但是被它轻易地躲开了！"——`[func:xxx]` 标记会在文本播到那里时，调用 `functions` 表里对应的函数。`statusMessage("msg", "miss_gold")` 是弹一个状态气泡（金色 MISS 那一下）。
+`statusMessage("msg", "miss_gold")` 是引擎的"状态气泡"接口——弹一个金色 MISS 提示，就是第 03 集时间轴里"攻击它，被闪避，金色 MISS"那一下。
 
 ## 讲笑话
 
-讲笑话走 `tell_joke` 演出（cutscenes/dog.lua）：苏西紧张地讲、利艾尔斯脸红地捧场、旁白 + 鼓点，最后"或许有用？"：
+讲笑话走 `tell_joke` 演出（cutscenes/dog.lua）。先看这几句台词——苏西讲了个烂双关，利艾尔斯捧场，狗听不懂但它体内很满意：
+
+```json
+"battle_dog_tell_joke_1": "* 大家一起想了一个烂双关笑话...[wait:5]",
+"battle_dog_tell_joke_susie": "* 呃...[wait:5]\n* 为什么狗不能当歌手？",
+"battle_dog_tell_joke_ralsei": "* 因为它会"汪"词！[wait:5][react:susie_reaction]",
+"battle_dog_tell_joke_susie_reaction": "...",
+"battle_dog_tell_joke_dog": "* 狗狗完全听不懂！",
+"battle_dog_tell_joke_inside": "* 但它体内有什么对此很满意！",
+"battle_dog_tell_joke_touch": "* 或许你可以碰到它了！",
+"battle_dog_dialogue": "汪",
+```
+
+`battle_dog_tell_joke_ralsei` 里又有个新标记 `[react:susie_reaction]`——"在这里触发一个 reaction"，对应下面那行"..."的吐槽。`battle_dog_dialogue` 是演出结束后狗的常驻对话——onAct 里塞进 `dialogue_override` 的，就是它。
+
+然后看演出代码：
 
 ```lua
 tell_joke = function(cutscene)
-    cutscene:text("{battle_dog_tell_joke_1}")
+    cutscene:text("{battle_dog_tell_joke_1}")  -- 旁白开场：大家想了个烂笑话
 
+    -- text(文案, 表情, 说话人)：第二个参数是气泡头像，第三个是说话人
     cutscene:text(
         "{battle_dog_tell_joke_susie}",
-        "nervous",
+        "nervous",             -- 苏西的表情：紧张
         "susie"
     )
 
     cutscene:text(
         "{battle_dog_tell_joke_ralsei}",
-        "blush_pleased_open",
+        "blush_pleased_open",  -- 利艾尔斯的表情：脸红得意
         "ralsei",
         {
-            reactions = {
-                susie_reaction = {
+            reactions = {      -- 别人说话时，旁边的角色可以插一句
+                susie_reaction = {  -- 名字对应台词里的 [react:susie_reaction]
                     "{battle_dog_tell_joke_susie_reaction}",
-                    "right",
-                    "bottom",
-                    "nervous",
+                    "right",        -- 苏西小头像在右边
+                    "bottom",       -- 气泡在下方
+                    "nervous",      -- 表情：紧张
                     "susie"
                 }
             }
@@ -255,33 +289,40 @@ tell_joke = function(cutscene)
     -- 翻译：这两行是旁白，所以故意不带头像。
     cutscene:setSpeaker(nil)
     cutscene:text(
-        "{battle_dog_tell_joke_dog}"
-            .. "[wait:1s][sound:mus_rimshot]\n"
+        "{battle_dog_tell_joke_dog}"              -- 狗听不懂
+            .. "[wait:1s][sound:mus_rimshot]\n"   -- 停一秒，放鼓点音效（双关梗的落点）
             .. "{battle_dog_tell_joke_inside}"
     )
-    cutscene:text("{battle_dog_tell_joke_touch}")
+    cutscene:text("{battle_dog_tell_joke_touch}")  -- 点题：或许你可以碰到它了
 end,
 ```
 
-`cutscene:text(文案, 表情, 说话人)` 的第二个参数是头像表情（和 getEncounterText 返回的头像同一套）；`reactions` 让利艾尔斯说话时苏西在旁边接话。演出播完，onAct 里的 `cutscene:after` 才把 `joke_completed` 打上——狗从这时候起会"汪"（dialogue_override）。
+`cutscene:text(文案, 表情, 说话人)` 的第二个参数是头像表情（和 getEncounterText 返回的头像同一套）；`reactions` 让利艾尔斯说话时苏西在旁边接话（键名和台词里的 `[react:xxx]` 对应）。演出播完，onAct 里的 `cutscene:after` 才把 `joke_completed` 打上——狗从这时候起会"汪"（dialogue_override，就是 JSON 里那个 `battle_dog_dialogue`）。
 
 ## 队伍版摸狗与饶恕（唯一的饶恕方式）
 
-`joke_completed` 一到位，队伍版摸狗就走完全不同的分支——`pet_party_special` 演出：狗震惊、加 100 饶恕值、白屏、睡着、漂浮道具环绕，演出结束 `spare()` 直接饶恕，战斗结束：
+`joke_completed` 一到位，队伍版摸狗就走完全不同的分支——`pet_party_special` 演出：狗震惊、加 100 饶恕值、白屏、睡着、漂浮道具环绕，演出结束 `spare()` 直接饶恕，战斗结束。先看两句文案（`[func:dog_pet_special_shock]` 也是"在这里调用函数"——和摸狗被躲那个标记同一套）：
+
+```json
+"battle_dog_pet_special": "* 大家一起去摸狗狗...[wait:1s][func:dog_pet_special_shock]\n* 突然！",
+"battle_dog_pet_special_3": "* 神器和[name:sans]的袜子被分离了出来！",
+```
+
+然后是演出代码：
 
 ```lua
 pet_party_special = function(cutscene)
-    local dog = cutscene:getTarget()
-    local shock_started = false
+    local dog = cutscene:getTarget()  -- 演出的目标：狗
+    local shock_started = false       -- 震惊标记：后面"等待"用
 
-    cutscene:setSpeaker(nil)
+    cutscene:setSpeaker(nil)          -- 这段是旁白，不带头像
     cutscene:text("{battle_dog_pet_special}", {
-        skip = false,
-        advance = false,
-        wait = false,
+        skip = false,      -- 不能跳过这句
+        advance = false,   -- 不能手动继续（等 func 触发）
+        wait = false,      -- 不等玩家按键
         functions = {
-            dog_pet_special_shock = function()
-                dog:addMercy(100)             -- 饶恕值拉满
+            dog_pet_special_shock = function()  -- [func:] 触发点
+                dog:addMercy(100)                    -- 饶恕值直接拉满
                 cutscene:setAnimation(dog, "shock")  -- 狗震惊
                 shock_started = true
             end
@@ -291,39 +332,39 @@ pet_party_special = function(cutscene)
     -- The localized text waits after the first line, then triggers the shock.
     -- 翻译：文案播完第一行后触发震惊。
     cutscene:wait(function()
-        return shock_started
+        return shock_started  -- 等震惊触发
     end)
-    cutscene:wait(1)
+    cutscene:wait(1)          -- 再停一秒，给震惊留时间
 
     -- Keep both battler sprites shaking while the screen fades to white.
     -- 翻译：白屏淡出时两个精灵一起抖。
     dog.sprite:shake(4, 0, 0)
     dog.overlay_sprite:shake(4, 0, 0)
-    local fade_out_done = cutscene:fadeOut(0.5, {
+    local fade_out_done = cutscene:fadeOut(0.5, {  -- 白屏淡出（0.5 秒）
         color = COLORS.white,
-        music = false
+        music = false       -- 不切音乐
     })
 
-    cutscene:wait(fade_out_done)
+    cutscene:wait(fade_out_done)  -- 等淡出完成
 
     -- Once pure white, automatically continue without waiting for input.
     -- 翻译：全白后自动继续，不等玩家按键。
-    Game.battle.battle_ui:clearEncounterText()
+    Game.battle.battle_ui:clearEncounterText()  -- 清掉屏幕上的文本
     dog.sprite:stopShake()
     dog.overlay_sprite:stopShake()
     cutscene:setAnimation(dog, "sleep")  -- 睡着
-    addFloatingProps(dog)                -- 漂浮道具环绕
+    addFloatingProps(dog)                -- 漂浮道具环绕（神器 + 袜子）
 
-    local fade_in_done = cutscene:fadeIn(0.75, {
+    local fade_in_done = cutscene:fadeIn(0.75, {  -- 白屏淡入（0.75 秒）
         color = COLORS.white,
         music = false
     })
     cutscene:wait(fade_in_done)
-    cutscene:text("{battle_dog_pet_special_3}")
+    cutscene:text("{battle_dog_pet_special_3}")  -- 收尾旁白
 end
 ```
 
-演出本身的节奏：气泡 → 震惊 + 饶恕值拉满 → 白屏 → 睡着 + 道具飘起来 → 淡入。`cutscene:wait` 是"等一个条件/时间"；`fadeOut`/`fadeIn` 是白屏切换（`music = false` 表示不切音乐）。
+演出本身的节奏：气泡 → 震惊 + 饶恕值拉满 → 白屏 → 睡着 + 道具飘起来 → 淡入。`cutscene:wait` 是"等一个条件/时间"；`fadeOut`/`fadeIn` 是白屏切换。这段结束时，onAct 里挂的 `cutscene:after` 会调 `self:spare()`——饶恕，战斗结束。
 
 ## 为什么这是唯一的饶恕方式
 
@@ -332,6 +373,8 @@ end
 ```lua
 -- The dog dodges every attack instead of taking damage.
 -- 翻译：狗会闪避所有攻击，不掉血。
+-- 引擎每次攻击判定都会调它：返回 0 = 这次攻击完全无效，
+-- 连"伤害"都算不出来——这就是"攻击它，被闪避，金色 MISS"的底层原因
 function Dog:getAttackDamage(damage, battler, points)
     return 0
 end
@@ -359,4 +402,4 @@ end
 
 ACT 全做完，战斗能真正结束了。下一集，第三回合：车冲撞——随机弹幕、物理效果、敌人演出，还有镜头震动和爆炸。
 
-作业：给队伍版摸狗加一个"利艾尔斯单人版"？——`registerAct` 的第三参数改成 `{"ralsei"}` 再注册一个试试，看看菜单里头像的变化，顺便验证"队伍要求"是全员在场还是任一在场。
+你也可以试试看：给队伍版摸狗加一个"利艾尔斯单人版"——`registerAct` 的第三参数改成 `{"ralsei"}` 再注册一个，看看菜单里头像的变化，顺便验证"队伍要求"是全员在场还是任一在场。
