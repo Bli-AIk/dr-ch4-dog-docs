@@ -125,6 +125,14 @@ Kristal 主菜单应该就出现了。第一次看到它，可以随便逛逛—
 git clone --recurse-submodules https://github.com/<你的用户名>/my-first-kristal-game.git
 ```
 
+（手滑忘了加 `--recurse-submodules`？不用重克隆，克隆完补这一句就能把子模块拉齐：
+
+```cmd
+git submodule update --init --recursive
+```
+
+`update` 负责拉取子模块的内容，`--init` 是让 git 知道这个仓库登记了哪些子模块（新克隆的仓库默认不知道），`--recursive` 保险起见、防子模块里再套子模块。其实就算这句也忘了也没关系——下面第 3 步的 `start.sh` 自己也会执行同样的命令把子模块拉齐，效果一样。）
+
 3. 进入目录，运行初始化脚本——它会把项目名、Mod ID 这类模板占位内容一次性替换成你的项目名，并拉齐所有子模块：
 
 ```cmd
