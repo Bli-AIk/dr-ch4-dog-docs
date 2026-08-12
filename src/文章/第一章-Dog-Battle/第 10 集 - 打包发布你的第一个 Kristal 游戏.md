@@ -45,7 +45,7 @@ EX04 已经把项目分好了三类：源文件（要发布）、构建产物（
 
 1. **引擎**：Kristal v0.10.0（`mod.json` 里的 `engineVer` 字段）。玩 mod 的人得有引擎——或者你给他独立包，引擎就包在里面了；
 2. **运行时库**：`kristal-i18n`（语言系统）、`gaster_blaster`（GB 炮的子弹库）——缺了它们战斗跑不起来；
-3. **开发库**：`object-editor`、`terminal-cli`、`kristal-debug-tools`——开发期才有用。
+3. **开发库**：`kristal-object-selector-plus`、`terminal-cli`、`kristal-debug-tools`——开发期才有用。
 
 第 3 层是怎么被"禁用"的？看 `kristal-debug-tools` 的 `lib.json`：
 
@@ -86,9 +86,9 @@ build-mod:
 
 **第一步，复制项目，扔开发文件**——脚本先把项目复制一份，按清单扔掉 git 历史、编辑器配置、文档、构建脚本这些开发期才有的东西（具体清单不用背，知道它是在做减法就行）。
 
-**第二步，删掉三个开发库**——整目录删 `object-editor`、`terminal-cli`、`kristal-debug-tools`。它们在运行时本来就不干活（only_dev），打包时干脆不带，包还更小。
+**第二步，删掉三个开发库**——整目录删 `kristal-object-selector-plus`、`terminal-cli`、`kristal-debug-tools`。它们在运行时本来就不干活（only_dev），打包时干脆不带，包还更小。
 
-**第三步，改配置**——把 `mod.json` 的 `dev` 改成 `false`（顺带把 object-editor 的 `enabled` 也关了）：
+**第三步，改配置**——把 `mod.json` 的 `dev` 改成 `false`（顺带把 kristal-object-selector-plus 的 `enabled` 也关了）：
 
 ```jsonc
     // 发布前：开发模式开着，debug 菜单、终端、物体编辑器都能用

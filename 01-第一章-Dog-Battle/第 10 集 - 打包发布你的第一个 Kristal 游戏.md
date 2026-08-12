@@ -16,7 +16,7 @@
 
 ## 准备发布版本
 
-just build-mod → dist/dr-ch4-dog-mod.zip：rsync 排除清单（.git/.github/编辑器配置/docs/Makefile/justfile/build 脚本/tiled 工程等）→ 删三个开发库 → patch dev=false（+object-editor 禁用）；zip 自动挂载不用解压（loadthread.lua 片段）。just build → 独立包：固定引擎 v0.10.0 + vendcust.lua 三行（TARGET_MOD/AUTO_MOD_START/RELEASE_MODE，逐字）+ conf.lua（identity 存档隔离/窗口标题/图标）+ love.exe 拼 .love → DR-CH4-DOG-release.exe。产物对照表（mod.zip / win64 / .love），什么时候给哪种。
+just build-mod → dist/dr-ch4-dog-mod.zip：rsync 排除清单（.git/.github/编辑器配置/docs/Makefile/justfile/build 脚本/tiled 工程等）→ 删三个开发库 → patch dev=false（+kristal-object-selector-plus 禁用）；zip 自动挂载不用解压（loadthread.lua 片段）。just build → 独立包：固定引擎 v0.10.0 + vendcust.lua 三行（TARGET_MOD/AUTO_MOD_START/RELEASE_MODE，逐字）+ conf.lua（identity 存档隔离/窗口标题/图标）+ love.exe 拼 .love → DR-CH4-DOG-release.exe。产物对照表（mod.zip / win64 / .love），什么时候给哪种。
 
 ## 自定义图标
 
